@@ -1,56 +1,34 @@
+##################################################################
+#  html to pdf conversion example
+##################################################################
+
 using Wkhtmltox
 
+# Initialize conversion setup
 pdf_init(0)
 
-ps = PdfSettings("out" => "c:\\temp\\example.pdf",
-                 "orientation" => "Landscape")
+# Sets output parameters
+ps = PdfSettings("out" => "c:/temp/example.pdf", # output file
+                 "orientation" => "Landscape")   # orientation
 
-ps = PdfSettings("out" => "c:\\temp\\example.pdf")
+ps["out"] = "c:/temp/example.pdf" # can be set also like this
 
-ps = PdfSettings()
-ps["out"] = "c:\\temp\\example.pdf"
-ps["out"] = "c:/temp/google.pdf"
+ps["size.pageSize"]  # settings can be read like this
 
-ps["web.background"]
-ps["size.pageSize"]
-
-
-ps["margin.top"] = "50px"
-ps["out"]
-ps["orientation"]
-
+# Sets source parameters
 os = PdfObject()
-os["page"] = "https://www.google.fr"
-os["page"] = "c:/temp/example.html"
 
-os = PdfObject("page" => "c:\\temp\\example.html")
-os["page"]
+# 'page' is the source file
+os["page"] = joinpath(dirname(@__FILE__),"../examples/example.html")
 
-conv = PdfConverter(ps, os)
-push!(conv, os)
+# Create the converter
+conv = PdfConverter(ps, os) # pass the pdf settings and source settings
 
+# push!(conv, os2) # additional sources can be added with 'push!()'
+
+# Do conversion
 run(conv)
 
+# free objects
 conv = nothing
 pdf_deinit()
-
-on_error(conv) do
-    println("error $ ")
-end
-
-conv = create_converter(gs)
-
-add_object(conv, os, C_NULL);
-
-wkconvert(conv)
-
-# wkhtmltopdf_set_progress_changed_callback(c, progress_changed);
-# wkhtmltopdf_set_phase_changed_callback(c, phase_changed);
-# wkhtmltopdf_set_error_callback(c, error);
-# wkhtmltopdf_set_warning_callback(c, warning);
-
-destroy_converter(conv);
-
-deinit();
-
-end

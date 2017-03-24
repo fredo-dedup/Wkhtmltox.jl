@@ -152,21 +152,12 @@ type ImgConverter
   ptr::Ptr{Converter}
 end
 
-function ImgConverter(settings::ImgSettings, args...)
+function ImgConverter(settings::ImgSettings)
   obj = ImgConverter(img_create_converter(settings.ptr))
 
   finalizer(obj, o -> img_destroy_converter(o.ptr))
 
-  for p in args
-    isa(p, ImgObject) || error("argument $p is not a ImgObject")
-    img_add_object(obj.ptr, p.ptr, C_NULL)
-  end
-
   obj
-end
-
-function push!(conv::ImgConverter, object::ImgObject)
-  img_add_object(conv.ptr, object.ptr, C_NULL)
 end
 
 function run(conv::ImgConverter)

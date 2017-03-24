@@ -8,7 +8,7 @@ export getindex, setindex!, push!, run
 
 export PdfSettings, PdfObject, PdfConverter
 export pdf_init, pdf_deinit
-export ImgSettings, ImgObject, ImgConverter
+export ImgSettings, ImgConverter
 export img_init, img_deinit
 
 
