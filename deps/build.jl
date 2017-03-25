@@ -10,7 +10,7 @@ using Compat
   elseif is_linux()
     ostype = "linux"
   else
-    error("No wkhtmltox library version for this OS")
+    error("No wkhtmltox library available for this OS")
   end
 
 ostype *= Int==Int64 ? "64" : "32"
@@ -39,10 +39,10 @@ downloadname = basename(url) * ( is_windows() ? ".zip" : "" )
 libmap = Dict(
  "apple32"   => "",
  "windows32" => "bin/wkhtmltox.dll",
- "linux32"   => "lib/libwkhtmltox.so.0.12.4",
+ "linux32"   => "wkhtmltox/lib/libwkhtmltox.so.0.12.4",
  "apple64"   => "",
  "windows64" => "bin/wkhtmltox.dll",
- "linux64"   => "lib/libwkhtmltox.so.0.12.4",
+ "linux64"   => "wkhtmltox/lib/libwkhtmltox.so.0.12.4",
  )
 
 libpath = libmap[ostype]
