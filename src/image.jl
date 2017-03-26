@@ -167,8 +167,8 @@ end
 function img_create_converter(gs::Ptr{GlobalSettings})
   ccall((:wkhtmltoimage_create_converter, libwkhtml),
         Ptr{Converter},
-        (Ptr{GlobalSettings},),
-        gs )
+        (Ptr{GlobalSettings}, Cstring),
+        gs, C_NULL )
 end
 
 function img_destroy_converter(conv::Ptr{Converter})

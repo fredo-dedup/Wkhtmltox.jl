@@ -29,6 +29,7 @@ archivemap = Dict(
  "linux64"   => "_linux-generic-amd64.tar.xz",
  )
 
+
 url = "https://downloads.wkhtmltopdf.org/0.12/0.12.4/" *
       "wkhtmltox-0.12.4" *
       archivemap[ostype]

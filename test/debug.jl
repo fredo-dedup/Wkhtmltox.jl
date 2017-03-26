@@ -34,9 +34,9 @@ os2["page"] = exfile
 conv = PdfConverter(ps)
 push!(conv, os)
 
-@test run(conv) == 1
+run(conv) == 1
 
-@test isfile(outfile)
+isfile(outfile)
 
 conv = nothing
 pdf_deinit()
@@ -46,6 +46,7 @@ pdf_deinit()
 # wkhtmltopdf_set_error_callback(c, error);
 # wkhtmltopdf_set_warning_callback(c, warning);
 
+reload("Wkhtmltox")
 reload("VegaLite")
 
 module Try
@@ -54,6 +55,7 @@ end
 module Try
 
 using VegaLite
+using Wkhtmltox
 
 ts = sort(rand(10))
 ys = Float64[ rand()*0.1 + cos(x) for x in ts]
@@ -64,42 +66,137 @@ v = data_values(time=ts, res=ys) +    # add the data vectors & assign to symbols
       encoding_y_quant(:res)
 
 
-tmppath = "c:/temp/vegalite.html"
+tmppath = "/tmp/vegalite.html"
 open(io -> VegaLite.writehtml(io, v), tmppath, "w")
 
-png_fn = "c:/temp/vegalite.png"
+png_fn = "/tmp/vegalite.png"
 
-VegaLite.Wkhtmltox.img_init(1)
-is = VegaLite.Wkhtmltox.ImgSettings("in" => tmppath,
-                                    "out" => png_fn)  # png format output
+img_init(0)
+is = ImgSettings()
+is = ImgSettings("in" => tmppath,
+                 "out" => png_fn,
+                 "fmt" => "png")  # png format output
 
-is["fmt"] = "svg"
+is["in"]
+is["in"] = "http://example.com"
+is["out"]
 
-conv = VegaLite.Wkhtmltox.ImgConverter(is)
-VegaLite.Wkhtmltox.run(conv)
+is["fmt"]
+is["fmt"]
+is["screenHeight"] = "200"
+is["screenHeight"]
+is["smartWidth"] = "true"
+is["smartWidth"]
+
+pars = ["crop.left", "crop.top", "crop.width", "crop.height", "load.cookieJar",
+        "transparent", "in", "out", "fmt", "screenWidth", "smartWidth",
+        "quality", "web.background", "web.loadImages", "web.enableJavascript",
+        "web.enableIntelligentShrinking", "web.minimumFontSize",
+        "web.printMediaType", "web.defaultEncoding", "web.userStyleSheet",
+        "web.enablePlugins", "load.username", "load.password", "load.jsdelay",
+        "load.zoomFactor", "load.customHeaders", "load.repertCustomHeaders",
+        "load.cookies", "load.post", "load.blockLocalFileAccess",
+        "load.stopSlowScript", "load.debugJavascript", "load.loadErrorHandling",
+        "load.proxy", "load.runScript", "header.fontSize", "header.fontName",
+        "header.left", "header.center", "header.right", "header.line",
+        "header.spacing", "header.htmlUrl"]
+
+is["useGraphics"]
+
+
+is["left"]
+
+for p in pars
+  println("$p => '$(is[p])'")
+end
+
+is["load.jsdelay"] = "1000"
+is["load.jsdelay"]
+
+
+is["web.defaultEncoding"]
+is["web.defaultEncoding"] = "utf-8"
+
+conv = ImgConverter(is)
+run(conv)
+
+out = Array(UInt8, 200_000)
+
+function img_get_output(conv::Ptr{Wkhtmltox.Converter}, output::Vector{UInt8})
+  ccall((:wkhtmltoimage_get_output, Wkhtmltox.libwkhtml),
+        Int,
+        (Ptr{Wkhtmltox.Converter}, Cstring),
+        conv, convert(Cstring, pointer(output)))
+end
+
+img_get_output(conv.ptr, out)
+
+tmppath = "/tmp/vegalite2.png"
+open(io -> write(io, out[1:151930]), tmppath, "w")
+
+out[1:10]
+out[0]
+
+[ convert(Int, x) for x in out[1:10]]
+
+len = wkhtmltoimage_get_output(c, &data);
+	printf("%ld len\n", len);
+
 
 conv = nothing
-VegaLite.Wkhtmltox.img_deinit()
+img_deinit()
+
+
+####################################
+
+ccall((:wkhtmltoimage_extended_qt, Wkhtmltox.libwkhtml),
+      Int, ())
+
+img_init(1)
+is = ImgSettings("in" => tmppath,
+                 "out" => png_fn,
+                 "fmt" => "png")  # png format output
+
+conv = ImgConverter(is)
+run(conv)
+conv = nothing
+img_deinit()
+
+
+
 
 
 #########
 
-VegaLite.Wkhtmltox.pdf_init(0)
 
-ps = VegaLite.Wkhtmltox.PdfSettings("out" => "c:/temp/example.pdf", # output file
-                 "orientation" => "Landscape")   # orientation
+reload("Wkhtmltox")
+reload("VegaLite")
 
-ps["out"] = "c:/temp/example.pdf" # can be set also like this
+module Try
+end
+
+module Try
+
+using VegaLite
+using Wkhtmltox
+
+pdf_init(0)
+ps = PdfSettings("out" => "/tmp/example.pdf")   # orientation
+
 ps["size.pageSize"]  # settings can be read like this
 
-VegaLite.Wkhtmltox.os = PdfObject()
-VegaLite.Wkhtmltox.os["page"] = joinpath(dirname(@__FILE__),"../examples/example.html")
+os = PdfObject()
+# os["page"] = "https://github.com/fredo-dedup/Wkhtmltox.jl"
+os["page"] = "/tmp/vegalite.html"
+# os["page"] = "/tmp/example.html"
+# os["page"] = "http://example.com"
+# os["page"] = joinpath(dirname(@__FILE__),"../examples/example.html")
 
-conv = VegaLite.Wkhtmltox.PdfConverter(ps, os) # pass the pdf settings and source settings
-VegaLite.Wkhtmltox.run(conv)
+conv = PdfConverter(ps, os) # pass the pdf settings and source settings
+run(conv)
 
 conv = nothing
-VegaLite.Wkhtmltox.pdf_deinit()
+pdf_deinit()
 
 
 
